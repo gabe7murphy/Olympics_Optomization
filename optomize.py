@@ -1,50 +1,53 @@
-import cvxpy as cp 
+import cvxpy as cp
 
-# Number of cities 
-m = 4   
+# Number of cities
+m = 4  
 
-# Parameters for each city 
+# Parameters for each city
 # Converted scores out of 10 to a 0-1 scale for normalization
 Cost = [0.6, 1.0, 0.7, 0.9]  # Stockholm, Salt Lake City, Bern, Mersailles
 Infrastructure = [0.8, 1.0, 0.8, 0.8]
 Accessibility = [0.9, 0.9, 0.9, 0.7]
 Popularity = [0.8, 0.5, 0.8, 0.8]
 Environmental = [1.0, 0.5, 0.9, 0.7]
-Safety = [0.8, 0.7, 0.9, 0.7]  # Added safety scores
+Safety = [0.8, 0.7, 0.9, 0.7]  
 
-# Gabe's Weights 
+# Gabe's Weights
 WeightCost, WeightInfrastructure, WeightAccessibility, WeightPopularity, WeightEnvironmental, WeightSafety = [0.5, 0.2, 0.05, 0.19, 0.02, 0.04]
 
-# Decision variables 
+# Decision variables
 X = cp.Variable(m, boolean=True)
 
-# Objective Function 
-objective = cp.Maximize(cp.sum(Cost * WeightCost * X + 
-                               Infrastructure * WeightInfrastructure * X + 
-                               Accessibility * WeightAccessibility * X + 
-                               Popularity * WeightPopularity * X + 
-                               Environmental * WeightEnvironmental * X + 
-                               Safety * WeightSafety * X))
+# Objective Function
+objective = cp.Maximize(
+    cp.sum(cp.multiply(Cost, cp.multiply(WeightCost, X))) +
+    cp.sum(cp.multiply(Infrastructure, cp.multiply(WeightInfrastructure, X))) +
+    cp.sum(cp.multiply(Accessibility, cp.multiply(WeightAccessibility, X))) +
+    cp.sum(cp.multiply(Popularity, cp.multiply(WeightPopularity, X))) +
+    cp.sum(cp.multiply(Environmental, cp.multiply(WeightEnvironmental, X))) +
+    cp.sum(cp.multiply(Safety, cp.multiply(WeightSafety, X)))
+)
 
-# Gabe's Constraints 
+# Gabe's Constraints
 # Converted constraints out of 10 to a 0-1 scale
 constraints = [
-    # Each city can host only one sport event
-    cp.sum(X) == 1,
     # Gabe's specific constraints
-    Cost * X >= 0.5,  # Minimum budget score of 5
-    Infrastructure * X >= 0.4,  # Minimum infrastructure score of 4
-    Accessibility * X >= 0.5,  # Minimum accessibility score of 5
-    Popularity * X >= 0.4,  # Minimum popularity score of 4
-    Environmental * X >= 0.7,  # Minimum environmental score of 7
-    Safety * X >= 0.5  # Minimum safety score of 5
+    cp.sum(X) == 1,  # Each city can host only one sport event
+    cp.sum(cp.multiply(Cost, X)) >= 0.8,  # Minimum budget score of 8
+    cp.sum(cp.multiply(Infrastructure, X)) >= 0.4,  # Minimum infrastructure score of 4
+    cp.sum(cp.multiply(Accessibility, X)) >= 0.5,  # Minimum accessibility score of 5
+    cp.sum(cp.multiply(Popularity, X)) >= 0.4,  # Minimum popularity score of 4
+    cp.sum(cp.multiply(Environmental, X)) >= 0.7,  # Minimum environmental score of 7
+    cp.sum(cp.multiply(Safety, X)) >= 0.5  # Minimum safety score of 5
 ]
 
-# Define and solve the problem 
+# Define and solve the problem
 problem = cp.Problem(objective, constraints)
 problem.solve()
 
-# Output results 
+# Output results
 print("Status:", problem.status)
 print("Optimal value:", problem.value)
-print("City selection (X):\n", X.value)
+city_names = ["Stockholm", "Salt Lake City", "Bern", "Marseilles"]
+selected_city = city_names[X.value.argmax()] if problem.status == 'optimal' else "No optimal city found"
+print("Selected city:", selected_city)
