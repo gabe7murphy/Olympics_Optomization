@@ -5,7 +5,7 @@ Decision Variables:
 𝑋𝑖 \
 𝑋𝑖=1  means the city is chosen to host the Olympics. \
 𝑋𝑖=0 means the city is not chosen to host the Olympics. \
-i is {1-4} for the 4 potential cities. \
+i is {1-4} for the 4 potential cities. 
 
 Constraints: 
 
@@ -15,4 +15,4 @@ Accessibility Constraints: Ensure that the chosen spot is easily accessible. \
 Popularity Constraints: Ensure that the chosen spot is popular and can attract visitors. \
 Environmental Constraints: Ensure that the chosen spot meets environmental standards. \
 Safety Constraints: Ensure that the chosen spot is safe for visitors. \
-Only can choose one city \
+Only can choose one city 
